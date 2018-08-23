@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1.3)
 project(SVD3 LANGUAGES C CXX VERSION 1.0)
 
 option(SVD3_BUILD_SAMPLES "Build samples" ON)
+option(SVD3_EXPORT_PACKAGE "Export the library as cmake package" OFF)
 
 find_package(CUDA 7.0 REQUIRED)
 
@@ -24,38 +25,6 @@ if(NOT CUDA_VERSION VERSION_LESS 7.0) # cuda >= 7.0
     set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-std=c++11;")
 endif()
 
-set(SVD3_SOURCES svd3_cuda/svd3.cu )
-set(SVD3_HEADESR svd3.h svd3_cuda/svd3_cuda.h )
-
-
-CUDA_ADD_LIBRARY(SVD3 ${SVD3_SOURCES} ${SVD3_HEADESR})
-
-# the ".." is needed to build as dependency to be able to include as <SVD3/....>
-target_include_directories(SVD3 PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
-        $<INSTALL_INTERFACE:include/>)
-
-set_target_properties(SVD3
-        PROPERTIES SOVERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
-        VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
-
-if(SVD3_BUILD_SAMPLES)
-    add_executable(testCpu main_cpu.cpp)
-    target_link_libraries(testCpu PUBLIC SVD3)
-
-    add_executable(testGpu svd3_cuda/main.cpp)
-    target_link_libraries(testGpu PUBLIC SVD3)
-
-    find_package(glm QUIET)
-    if(glm_FOUND)
-        add_executable(testGlm main_glm.cpp)
-        target_compile_definitions(testGlm PUBLIC -DGLM_ENABLE_EXPERIMENTAL)
-        target_link_libraries(testGlm PUBLIC glm SVD3)
-    else()
-        message(STATUS "GLM not found - Sample will not be built")
-    endif()
-endif()
-
-
 # EXPORTING THE LIBRARY
 #
 include(GNUInstallDirs)
@@ -73,6 +42,12 @@ set(project_config "${generated_dir}/${PROJECT_NAME}Config.cmake")
 set(targets_export_name "${PROJECT_NAME}Targets")
 set(namespace "${PROJECT_NAME}::")
 
+add_subdirectory(src/svd3)
+
+if(SVD3_BUILD_SAMPLES)
+    add_subdirectory(src/samples)
+endif()
+
 # Include module with fuction 'write_basic_package_version_file'
 include(CMakePackageConfigHelpers)
 
@@ -89,19 +64,6 @@ configure_package_config_file("${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in"
         INSTALL_DESTINATION "${config_install_dir}")
 
 
-# Targets:
-#   * header location after install: <prefix>/include/
-install(TARGETS SVD3
-        EXPORT "${targets_export_name}"
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        INCLUDES DESTINATION "${include_install_dir}/SVD3")
-
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/svd3_cuda DESTINATION "${include_install_dir}/SVD3" FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h")
-install(FILES svd3.h DESTINATION "${include_install_dir}/SVD3")
-
-
 # Config
 #   * <prefix>/lib/cmake/${PROJECT_NAME}/${PROJECT_NAME}Targets.cmake
 install(EXPORT "${targets_export_name}"
@@ -115,7 +77,9 @@ install(
         FILES "${project_config}" "${version_config}"
         DESTINATION "${config_install_dir}")
 
-export(PACKAGE SVD3)
+if(SVD3_EXPORT_PACKAGE)
+    export(PACKAGE SVD3)
+endif()
 
 ## Uninstall target
 configure_file(

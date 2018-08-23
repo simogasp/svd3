@@ -6,7 +6,7 @@
 #include <glm/gtx/fast_square_root.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <glm/gtc/matrix_access.hpp>
-#include "math.h"
+#include <math.h>
 
 #define _sqrtHalf 0.70710678
 #define _gamma 5.828427124 // FOUR_GAMMA_SQUARED = sqrt(8)+3;

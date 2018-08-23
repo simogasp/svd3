@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "svd3.h"
+#include <svd3/svd3.h>
 #include <time.h>
 
 // some printing utilities

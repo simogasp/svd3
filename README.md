@@ -10,13 +10,13 @@ Execution time on the GPU is about 174 microseconds. Tested on a NVIDIA GeForce 
 Also included are routines for diagonalization / QR decomposition of 3x3 matrices, which may be useful in their own right. 
 
 
-##Usage
+## Usage
 
 Just include the header file and you are good to go! 
 
 ```C++
 
-#include "svd3.h"
+#include "svd3/svd3.h"
 float a11, a12, a13, a21, a22, a23, a31, a32, a33;
 
 a11= -0.558253; a12 = -0.0461681; a13 = -0.505735;
