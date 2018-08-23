@@ -46,3 +46,10 @@ See the included Mathematica notebook for derivations of numerical shortcuts.
 
 ## License
 MIT License, Eric V. Jang 2014
+
+## Building
+
+See [INSTALL](INSTALL.md) text file.
+
+Continuous integration:
+ - [![Build Status](https://travis-ci.org/EncovGroup/svd3.svg?branch=develop)](https://travis-ci.org/EncovGroup/svd3) develop branch.
