@@ -24,7 +24,19 @@ endif()
 
 find_package(CUDA 7.0 REQUIRED)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.9.3")
+        if(CUDA_VERSION VERSION_LESS "8.0")
+            MESSAGE(STATUS "Found gcc >=5 and CUDA <= 7.5, adding workaround C++ flags")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORCE_INLINES -D_MWAITXINTRIN_H_INCLUDED -D__STRICT_ANSI__")
+        endif(CUDA_VERSION VERSION_LESS "8.0")
+    endif(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.9.3")
+endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
 set(CUDA_SEPARABLE_COMPILATION ON)
+
+set(CUDA_NVCC_FLAGS_DEBUG   "${CUDA_NVCC_FLAGS_DEBUG};-G;-g")
+set(CUDA_NVCC_FLAGS_RELEASE "${CUDA_NVCC_FLAGS_RELEASE};-O3")
 
 set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-gencode;arch=compute_30,code=sm_30")
 set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-gencode;arch=compute_35,code=sm_35")
@@ -41,6 +53,17 @@ endif()
 if(NOT CUDA_VERSION VERSION_LESS 7.0) # cuda >= 7.0
     set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-std=c++11;")
 endif()
+
+if(NOT CUDA_VERSION VERSION_LESS 7.5) # cuda >= 7.5
+    if(UNIX)
+        set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-D_FORCE_INLINES")
+    endif()
+    set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-Xptxas;--warn-on-local-memory-usage")
+    set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-Xptxas;--warn-on-spills")
+endif()
+
+# library required for CUDA dynamic parallelism, forgotten by CMake 3.4
+cuda_find_library_local_first(CUDA_CUDADEVRT_LIBRARY cudadevrt "\"cudadevrt\" library")
 
 # EXPORTING THE LIBRARY
 #
