@@ -24,7 +24,6 @@ if(BUILD_SHARED_LIBS)
     # Workaround to force deactivation of cuda static runtime for cmake < 3.10
     set(CUDA_cudart_static_LIBRARY 0)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-    set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-Xcompiler;-fPIC")
 else()
     message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
     option(CUDA_USE_STATIC_CUDA_RUNTIME "Use the static version of the CUDA runtime library if available" ON)
@@ -46,6 +45,11 @@ endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 set(CUDA_SEPARABLE_COMPILATION ON)
 
 set(CUDA_NVCC_FLAGS_DEBUG   "${CUDA_NVCC_FLAGS_DEBUG};-G")
+
+if(BUILD_SHARED_LIBS)
+    # this goes here because findCuda reset the flags
+    set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-Xcompiler;-fPIC;")
+endif()
 
 set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-gencode;arch=compute_30,code=sm_30")
 set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-gencode;arch=compute_35,code=sm_35")
