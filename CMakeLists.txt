@@ -129,3 +129,5 @@ configure_file(
 
 add_custom_target(SVD3_uninstall
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+message(STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
