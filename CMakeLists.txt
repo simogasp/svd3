@@ -4,6 +4,23 @@ project(SVD3 LANGUAGES C CXX VERSION 1.0)
 
 option(SVD3_BUILD_SAMPLES "Build samples" ON)
 option(SVD3_EXPORT_PACKAGE "Export the library as cmake package" OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+
+if(BUILD_SHARED_LIBS)
+    message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
+    # Need to declare CUDA_USE_STATIC_CUDA_RUNTIME as an option to ensure that it is not overwritten in FindCUDA.
+    option(CUDA_USE_STATIC_CUDA_RUNTIME "Use the static version of the CUDA runtime library if available" OFF)
+    set(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
+    # Workaround to force deactivation of cuda static runtime for cmake < 3.10
+    set(CUDA_cudart_static_LIBRARY 0)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    set(CUDA_NVCC_FLAGS         "${CUDA_NVCC_FLAGS};-Xcompiler;-fPIC")
+else()
+    message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
+    option(CUDA_USE_STATIC_CUDA_RUNTIME "Use the static version of the CUDA runtime library if available" ON)
+    set(CUDA_USE_STATIC_CUDA_RUNTIME ON)
+    set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
+endif()
 
 find_package(CUDA 7.0 REQUIRED)
 
