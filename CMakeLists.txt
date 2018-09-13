@@ -6,6 +6,16 @@ option(SVD3_BUILD_SAMPLES "Build samples" ON)
 option(SVD3_EXPORT_PACKAGE "Export the library as cmake package" OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
+# There was a bug in FindCUDA fixed in cmake 3.10 that creates empty strings on the nvcc command line.
+# The solution merged in cmake 3.10 use the command COMMAND_EXPAND_LISTS only available from cmake >= 3.8
+# https://gitlab.kitware.com/cmake/cmake/merge_requests/1008
+# So we use another solution compatible with cmake >= 3.4 proposed here:
+# https://gitlab.kitware.com/cmake/cmake/issues/16411
+# if cmake version < 3.10 use our hacked version of FindCUDA:
+if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} VERSION_LESS 3.10)
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/compatibilityCUDA)
+endif()
+
 if(BUILD_SHARED_LIBS)
     message(STATUS "BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS}")
     # Need to declare CUDA_USE_STATIC_CUDA_RUNTIME as an option to ensure that it is not overwritten in FindCUDA.
