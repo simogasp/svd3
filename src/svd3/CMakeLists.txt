@@ -4,6 +4,10 @@ set(SVD3_HEADESR svd3.h svd3_cuda/svd3_cuda.h)
 
 CUDA_ADD_LIBRARY(SVD3 ${SVD3_SOURCES} ${SVD3_HEADESR})
 
+target_include_directories(SVD3 PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:include/>)
+
 # the ".." is needed to build as dependency to be able to include as <SVD3/....>
 target_include_directories(SVD3 PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
